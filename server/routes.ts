@@ -1,16 +1,32 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertCategorySchema, insertProductSchema, insertOrderSchema } from "@shared/schema";
-import nodemailer from "nodemailer";
+import { authenticate} from "./auth";
+import { insertCategorySchema, insertProductSchema, insertOrderSchema } from "./schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // New auth routes
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const token = await login(email, password);
+      res.json({ token });
+    } catch (error) {
+      res.status(401).json({ message: error.message });
+    }
+  });
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const token = await register(email, password);
+      res.json({ token });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+  
+  app.get('/api/auth/user', authenticate, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -104,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes - Categories
-  app.get('/api/admin/categories', isAuthenticated, async (req, res) => {
+  app.get('/api/admin/categories', authenticate, async (req, res) => {
     try {
       const categories = await storage.getCategories();
       res.json(categories);
@@ -114,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/categories', isAuthenticated, async (req, res) => {
+  app.post('/api/admin/categories', authenticate, async (req, res) => {
     try {
       const validatedCategory = insertCategorySchema.parse(req.body);
       const category = await storage.createCategory(validatedCategory);
@@ -125,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/categories/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/admin/categories/:id', authenticate, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedCategory = insertCategorySchema.partial().parse(req.body);
@@ -137,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/categories/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/admin/categories/:id', authenticate, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteCategory(parseInt(id));
@@ -149,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes - Products
-  app.get('/api/admin/products', isAuthenticated, async (req, res) => {
+  app.get('/api/admin/products', authenticate, async (req, res) => {
     try {
       const { categoryId, search, page = 1, limit = 50 } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -179,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/products', isAuthenticated, async (req, res) => {
+  app.post('/api/admin/products', authenticate, async (req, res) => {
     try {
       const validatedProduct = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedProduct);
@@ -190,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/products/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/admin/products/:id', authenticate, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedProduct = insertProductSchema.partial().parse(req.body);
@@ -202,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/products/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/admin/products/:id', authenticate, async (req, res) => {
     try {
       const { id } = req.params;
       await storage.deleteProduct(parseInt(id));
@@ -214,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes - Orders
-  app.get('/api/admin/orders', isAuthenticated, async (req, res) => {
+  app.get('/api/admin/orders', authenticate, async (req, res) => {
     try {
       const orders = await storage.getOrders();
       res.json(orders);
@@ -224,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/orders/:id/status', isAuthenticated, async (req, res) => {
+  app.put('/api/admin/orders/:id/status', authenticate, async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
