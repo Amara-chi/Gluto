@@ -4,6 +4,8 @@ import mongoose, { Schema } from 'mongoose';
 const userSchema = new Schema({
   id: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  isAdmin: { type: Boolean, default: false },
   firstName: { type: String },
   lastName: { type: String },
   profileImageUrl: { type: String },

@@ -21,15 +21,6 @@ export async function createAuthToken(user: AuthUser): Promise<string> {
   );
 }
 
-export async function verifyToken(token: string): Promise<AuthUser | null> {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
-    return decoded;
-  } catch (err) {
-    return null;
-  }
-}
-
 export const authenticate: RequestHandler = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
@@ -48,16 +39,37 @@ export const authenticate: RequestHandler = async (req, res, next) => {
   next();
 };
 
-export async function login(email: string, password: string) {
-  // Implement your actual user lookup and password verification
-  const user = await storage.getUserByEmail(email);
+  export async function login(email: string, password: string) {
+    const user = await storage.getUserByEmail(email);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
   
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    throw new Error('Invalid credentials');
+    const passwordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordValid) {
+      throw new Error('Invalid password');
+    }
+  
+    // Verify admin status if this is an admin route
+    if (user.isAdmin !== true) {
+      throw new Error('Admin access required');
+    }
+  
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: '1d' }
+    );
+  
+    return { 
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdmin: user.isAdmin
+      }
+    };
   }
-
-  return createAuthToken({
-    id: user.id,
-    email: user.email
-  });
-}

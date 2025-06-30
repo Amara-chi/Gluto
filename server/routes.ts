@@ -3,18 +3,20 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticate} from "./auth";
 import { insertCategorySchema, insertProductSchema, insertOrderSchema } from "./schema";
+import { login } from './auth'; // Make sure this import exists
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // New auth routes
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const token = await login(email, password);
-      res.json({ token });
-    } catch (error) {
-      res.status(401).json({ message: error.message });
-    }
-  });
+
+// Add this route handler
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await login(email, password);
+    res.json(result);
+  } catch (error) {
+    res.status(401).json({ message: error.message });
+  }
+});
 
   app.post('/api/auth/register', async (req, res) => {
     try {

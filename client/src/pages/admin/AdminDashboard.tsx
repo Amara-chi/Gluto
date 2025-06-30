@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   const pendingOrders = orders.filter((order: any) => order.status === 'pending').length || 0;
 
   const handleLogout = () => {
-    window.location.href = '/api/logout';
+    logout();
   };
 
   return (

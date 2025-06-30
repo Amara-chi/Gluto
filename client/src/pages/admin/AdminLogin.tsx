@@ -1,31 +1,35 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminLogin() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { login } = useAuth();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.href = '/admin';
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      await login(email, password);
+      // Successful login will be handled by useAuth hook's redirect
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAuthenticated]);
-
-  const handleLogin = () => {
-    window.location.href = '/api/login';
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -44,19 +48,44 @@ export default function AdminLogin() {
             Access the admin dashboard to manage products, categories, and orders.
           </p>
           
-          <Button 
-            onClick={handleLogin}
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white"
-            size="lg"
-          >
-            Login with Replit Auth
-          </Button>
-
-          <div className="text-center">
-            <Button variant="ghost" asChild>
-              <a href="/">← Back to Website</a>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            
+            <Button 
+              type="submit"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white"
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
-          </div>
+
+            <div className="text-center">
+              <Button variant="ghost" asChild>
+                <a href="/">← Back to Website</a>
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
