@@ -19,7 +19,7 @@ import type { Product, Category } from '@shared/schema';
 interface ProductFormData {
   name: string;
   description: string;
-  price: string;
+  price: string; // You may want to convert to number before submitting
   availability: number;
   imageUrl: string;
   eanUpc: string;
@@ -28,7 +28,7 @@ interface ProductFormData {
   packaging: string;
   leadTime: string;
   shelfLife: string;
-  categoryId: number | '';
+  categoryId: string | ''; // ✅ changed from number to string
 }
 
 export default function ProductManagement() {
@@ -168,8 +168,8 @@ export default function ProductManagement() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.categoryId) {
-      toast({ title: "Error", description: "Please select a category", variant: "destructive" });
+    if (!formData.categoryId) {Select
+      toast({ title: "Error", description: "Please  a category", variant: "destructive" });
       return;
     }
 
@@ -262,23 +262,30 @@ export default function ProductManagement() {
                     </div>
                     
                     <div>
-                      <Label htmlFor="categoryId">Category *</Label>
-                      <Select 
-                        value={formData.categoryId.toString()} 
-                        onValueChange={(value) => setFormData({ ...formData, categoryId: parseInt(value) })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+  <Label htmlFor="categoryId">Category *</Label>
+  <Select
+  value={formData.categoryId || ''}
+  onValueChange={(value) =>
+    setFormData({ ...formData, categoryId: value }) // no parseInt!
+}
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Select Category" />
+  </SelectTrigger>
+  <SelectContent>
+    {categories.map((category) => (
+      <SelectItem
+        key={category._id.toString()}
+        value={category._id.toString()}
+      >
+        {category.name}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
+</div>
+
                   </div>
 
                   <div>
@@ -427,22 +434,25 @@ export default function ProductManagement() {
                 />
               </div>
               
-              <Select 
-                value={selectedCategoryId?.toString() || ''} 
-                onValueChange={(value) => setSelectedCategoryId(value ? parseInt(value) : undefined)}
-              >
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Filter by Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+             <Select
+  value={selectedCategoryId?.toString() || "all"}
+  onValueChange={(value) =>
+    setSelectedCategoryId(value === "all" ? undefined : parseInt(value))
+  }
+>
+  <SelectTrigger className="w-64">
+    <SelectValue placeholder="Filter by Category" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="all">All Categories</SelectItem> {/* ✅ Use a valid string */}
+    {categories.map((category) => (
+  <SelectItem key={category._id.toString()} value={category._id.toString()}>
+    {category.name}
+  </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
             </div>
           </CardContent>
         </Card>

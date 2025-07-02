@@ -9,8 +9,9 @@ export const insertCategorySchema = z.object({
 export const insertProductSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  price: z.number(),
-  categoryId: z.number(),
+  price: z.coerce.number(),            // ✅ accepts string and converts to number
+categoryId: z.string().min(1, 'Category is required'),
+      // ✅ accepts string ObjectId (from MongoDB _id)
 });
 
 export const insertOrderSchema = z.object({
@@ -22,10 +23,10 @@ export const insertOrderSchema = z.object({
   address: z.string().optional(),
   inquiryPriority: z.string().optional(),
   items: z.array(z.object({
-    productId: z.number(),
+    productId: z.coerce.string(),      // ✅ handle ObjectId as string
     productName: z.string(),
-    quantity: z.number(),
-    price: z.number(),
+    quantity: z.coerce.number(),       // ✅ allow string input like "1"
+    price: z.coerce.number(),          // ✅ allow string input like "199.99"
   })),
 });
 

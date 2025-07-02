@@ -1,20 +1,49 @@
+// server/storage.ts
 import { User, Category, Product, Order } from './models';
+import type { InsertCategory, InsertOrder, InsertProduct } from '../shared/schema';
 
-export class DatabaseStorage implements IStorage {
-  // User operations
-  async getUser(id: string): Promise<User | undefined> {
-    return await User.findOne({ id }).lean();
+export class DatabaseStorage {
+  // ─── AUTH METHODS ────────────────────────────────
+
+  async getUserByEmail(email: string) {
+    return await User.findOne({ email }).lean();
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    return await User.findOneAndUpdate(
-      { id: userData.id },
+  async getUser(id: string) {
+    return await User.findById(id).lean();
+  }
+
+  async createUser(data: {
+    email: string;
+    passwordHash: string;
+    isAdmin: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    firstName?: string;
+    lastName?: string;
+    profileImageUrl?: string;
+  }) {
+    const user = new User(data);
+    return await user.save(); // Important: no `.lean()` on save
+  }
+
+  async upsertUser(userData: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    isAdmin?: boolean;
+    profileImageUrl?: string;
+  }) {
+    return await User.findByIdAndUpdate(
+      userData.id,
       { ...userData, updatedAt: new Date() },
       { upsert: true, new: true }
     ).lean();
   }
 
-  // Category operations
+  // ─── CATEGORY METHODS ─────────────────────────────
+
   async getCategories(): Promise<Category[]> {
     return await Category.find({ isActive: true }).sort({ name: 1 }).lean();
   }
@@ -40,7 +69,8 @@ export class DatabaseStorage implements IStorage {
     await Category.findByIdAndUpdate(id, { isActive: false });
   }
 
-  // Product operations
+  // ─── PRODUCT METHODS ─────────────────────────────
+
   async getProducts(params: {
     categoryId?: string;
     search?: string;
@@ -48,16 +78,10 @@ export class DatabaseStorage implements IStorage {
     offset?: number;
   } = {}): Promise<Product[]> {
     const { categoryId, search, limit = 50, offset = 0 } = params;
-    
+
     const query: any = { isActive: true };
-    
-    if (categoryId) {
-      query.categoryId = categoryId;
-    }
-    
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
+    if (categoryId) query.categoryId = categoryId;
+    if (search) query.name = { $regex: search, $options: 'i' };
 
     return await Product.find(query)
       .sort({ createdAt: -1 })
@@ -68,16 +92,10 @@ export class DatabaseStorage implements IStorage {
 
   async getProductsCount(params: { categoryId?: string; search?: string } = {}): Promise<number> {
     const { categoryId, search } = params;
-    
+
     const query: any = { isActive: true };
-    
-    if (categoryId) {
-      query.categoryId = categoryId;
-    }
-    
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
+    if (categoryId) query.categoryId = categoryId;
+    if (search) query.name = { $regex: search, $options: 'i' };
 
     return await Product.countDocuments(query);
   }
@@ -103,7 +121,8 @@ export class DatabaseStorage implements IStorage {
     await Product.findByIdAndUpdate(id, { isActive: false });
   }
 
-  // Order operations
+  // ─── ORDER METHODS ───────────────────────────────
+
   async createOrder(order: InsertOrder): Promise<Order> {
     const newOrder = new Order(order);
     return await newOrder.save();

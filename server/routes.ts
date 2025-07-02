@@ -1,9 +1,12 @@
+//server/routes.ts-
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { authenticate} from "./auth";
+import { login, register, setCurrentUser, getCurrentUser, authenticate } from './auth';
+
 import { insertCategorySchema, insertProductSchema, insertOrderSchema } from "./schema";
-import { login } from './auth'; // Make sure this import exists
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -11,23 +14,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await login(email, password);
-    res.json(result);
+    const user = await login(email, password);
+    setCurrentUser(user);
+    res.json(user);
   } catch (error) {
     res.status(401).json({ message: error.message });
   }
 });
 
-  app.post('/api/auth/register', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const token = await register(email, password);
-      res.json({ token });
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-  
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await register(email, password);
+    setCurrentUser(user);
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.get('/api/auth/me', (req, res) => {
+  const user = getCurrentUser();
+  if (!user) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  res.json(user);
+});
   app.get('/api/auth/user', authenticate, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

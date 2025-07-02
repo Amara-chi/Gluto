@@ -1,3 +1,4 @@
+//server/index.ts
 import dotenv from 'dotenv';
 dotenv.config();
 import express, { type Request, Response, NextFunction } from "express";
@@ -72,14 +73,10 @@ app.use((req, res, next) => {
 
   // Start the server
   const port = process.env.PORT || 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`Server running on port ${port}`);
-    log(`Environment: ${app.get("env")}`);
-  });
+  server.listen(port, () => {
+  log(`Server running on port ${port}`);
+  log(`Environment: ${app.get("env")}`);
+});
 })();
 
 // Handle unhandled promise rejections

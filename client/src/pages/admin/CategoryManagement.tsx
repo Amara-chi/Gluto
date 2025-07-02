@@ -224,22 +224,29 @@ export default function CategoryManagement() {
 
                   <div>
                     <Label htmlFor="parentId">Parent Category</Label>
-                    <Select 
-                      value={formData.parentId.toString()} 
-                      onValueChange={(value) => setFormData({ ...formData, parentId: value ? parseInt(value) : '' })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Parent Category (Optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Root Category</SelectItem>
-                        {rootCategories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Select
+  value={formData.parentId?.toString() || "root"}
+  onValueChange={(value) =>
+    setFormData({
+      ...formData,
+      parentId: value === "root" ? "" : parseInt(value),
+    })
+  }
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Select Parent Category (Optional)" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="root">Root Category</SelectItem>
+   {rootCategories.map((category) => (
+  <SelectItem key={category._id.toString()} value={category._id.toString()}>
+    {category.name}
+  </SelectItem>
+))}
+  
+  </SelectContent>
+</Select>
+
                   </div>
 
                   <div className="flex gap-4 pt-4">

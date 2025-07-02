@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { Package, FolderOpen, ShoppingCart, BarChart3, Users, LogOut } from 'lucide-react';
+import { Package, FolderOpen, ShoppingCart, BarChart3, Users } from 'lucide-react';
+import { LogOut as LogOutIcon } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useThemeContext } from '@/components/ThemeProvider';
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
   const { theme, toggleTheme } = useThemeContext();
 
   const { data: productsData } = useQuery({
@@ -33,7 +36,7 @@ export default function AdminDashboard() {
   const pendingOrders = orders.filter((order: any) => order.status === 'pending').length || 0;
 
   const handleLogout = () => {
-    logout();
+     logout(); // ✅ Just one call, not logout();();
   };
 
   return (
@@ -57,7 +60,7 @@ export default function AdminDashboard() {
               </span>
               
               <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
+                <logout className="w-4 h-4 mr-2" />
                 Logout
               </Button>
             </div>
