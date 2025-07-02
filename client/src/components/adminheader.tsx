@@ -109,12 +109,8 @@ interface HeaderProps {
               </span>
               
               <Button className='flex items-center' variant="outline" onClick={handleLogout}>
-                <Link href="/admin/register">
-              <a className={`font-medium pb-2 transition-colors ${
-                isActiveRoute('/register') 
-                  ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-              }`}>
+                <Link href="/admin/login">
+              <a className={`font-medium pb-2 transition-colors`}>
                 Logout
               </a>
             </Link>

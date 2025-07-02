@@ -134,7 +134,8 @@ import Informations from "@/pages/Informations";
 import Cart from "@/pages/Cart";
 
 // Admin pages
-// import AdminLogin from "@/pages/admin/AdminLogin";
+import AdminRegister from "@/pages/admin/Register"; // 🔐 Not a public route
+import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import ProductManagement from "@/pages/admin/ProductManagement";
 import CategoryManagement from "@/pages/admin/CategoryManagement";
@@ -181,12 +182,14 @@ function Router() {
       
   
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/register" component={AdminRegister} />
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/products" component={ProductManagement} />
       <Route path="/admin/categories" component={CategoryManagement} />
-      <Route component={NotFound} />
+      {/* <Route component={NotFound} />
   
       {/* Fallback to 404 */}
-      <Route component={NotFound} />
+      {/* <Route component={NotFound} />  */}
     </Switch>
   );
 }
