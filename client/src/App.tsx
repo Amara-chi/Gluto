@@ -35,7 +35,6 @@ function Router() {
   return (
     <Switch>
       {/* Temporary route to start registration (can be removed later) */}
-      <Route path="/" component={() => <Redirect to="/register" />} />
 
       {/* Public routes */}
       <Route path="/catalog" component={Catalog} />

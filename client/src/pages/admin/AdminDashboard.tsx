@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useThemeContext } from '@/components/ThemeProvider';
+import { Header } from '@/components/adminheader'
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -42,32 +43,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Admin Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400">GLUTO</h1>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Admin Dashboard</span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </Button>
-              
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Welcome, {user?.firstName || user?.email}
-              </span>
-              
-              <Button variant="outline" onClick={handleLogout}>
-                <logout className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      < Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Header */}
         <div className="mb-8">
