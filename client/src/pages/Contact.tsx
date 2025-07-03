@@ -1,231 +1,307 @@
-import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Header } from '@/components/Header';
+import { useState, useEffect } from 'react';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { BackToTop } from '@/components/BackToTop';
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Clock,
+  Send
+} from 'lucide-react';
 
 export default function Contact() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    company: '',
-    phone: '',
     subject: '',
-    message: '',
+    message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    document.documentElement.classList.toggle('dark', savedDarkMode);
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    document.documentElement.classList.toggle('dark', newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Contact form submitted:', formData);
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setSubmitSuccess(false), 5000);
+    }, 1500);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const contactInfo = [
+    {
+      icon: <Mail className="w-6 h-6 text-emerald-600" />,
+      title: "Email",
+      details: "info@gluto.com",
+      link: "mailto:info@gluto.com"
+    },
+    {
+      icon: <Phone className="w-6 h-6 text-emerald-600" />,
+      title: "Phone",
+      details: "+1 (555) 123-4567",
+      link: "tel:+15551234567"
+    },
+    {
+      icon: <MapPin className="w-6 h-6 text-emerald-600" />,
+      title: "Office",
+      details: "123 Agriculture Blvd, Farmville, FC 12345",
+      link: "https://maps.google.com"
+    },
+    {
+      icon: <Clock className="w-6 h-6 text-emerald-600" />,
+      title: "Hours",
+      details: "Monday-Friday: 9am - 5pm"
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${darkMode ? 'dark' : ''}`}>
+      <Navbar 
+        darkMode={darkMode} 
+        toggleDarkMode={toggleDarkMode} 
+        scrolled={scrolled} 
+      />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Contact Us
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Get in touch with our team for inquiries about our products, partnerships, or any other questions.
+          <p className="text-xl text-emerald-100 max-w-3xl mx-auto">
+            We'd love to hear from you! Get in touch with our team.
           </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Contact Information */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Get in Touch</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-start space-x-3">
-                  <Mail className="w-5 h-5 text-primary-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-gray-600 dark:text-gray-400">info@glutointernational.com</p>
-                    <p className="text-gray-600 dark:text-gray-400">sales@glutointernational.com</p>
+      {/* Contact Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                Get in Touch
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-8">
+                Have questions about our products or services? Our team is here to help. 
+                Reach out to us through any of the channels below, or fill out the contact form.
+              </p>
+              
+              <div className="space-y-6">
+                {contactInfo.map((item, index) => (
+                  <div key={index} className="flex items-start">
+                    <div className="mt-1 mr-4">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                        {item.title}
+                      </h3>
+                      {item.link ? (
+                        <a 
+                          href={item.link} 
+                          className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                        >
+                          {item.details}
+                        </a>
+                      ) : (
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {item.details}
+                        </p>
+                      )}
+                    </div>
                   </div>
+                ))}
+              </div>
+              
+              <div className="mt-12 bg-gray-200 border-2 border-dashed rounded-xl w-full h-64" />
+            </div>
+            
+            {/* Contact Form */}
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                Send a Message
+              </h2>
+              
+              {submitSuccess ? (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-200 p-6 rounded-lg mb-6">
+                  <h3 className="text-xl font-bold mb-2">Message Sent Successfully!</h3>
+                  <p>Thank you for contacting us. We'll get back to you as soon as possible.</p>
                 </div>
-
-                <div className="flex items-start space-x-3">
-                  <Phone className="w-5 h-5 text-primary-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Phone</p>
-                    <p className="text-gray-600 dark:text-gray-400">+1 (555) 123-4567</p>
-                    <p className="text-gray-600 dark:text-gray-400">+1 (555) 123-4568</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-primary-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Office</p>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      123 International Trade Center<br />
-                      Global Business District<br />
-                      New York, NY 10001
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-primary-600 mt-1" />
-                  <div>
-                    <p className="font-medium">Business Hours</p>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 4:00 PM<br />
-                      Sunday: Closed
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Contact */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Quick Contact</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  For urgent inquiries or immediate assistance, please call our direct line:
-                </p>
-                <Button className="w-full bg-primary-600 hover:bg-primary-700">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Now: +1 (555) 123-4567
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Send us a Message</CardTitle>
-              </CardHeader>
-              <CardContent>
+              ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="name">Full Name *</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="company">Company Name</Label>
-                      <Input
-                        id="company"
-                        type="text"
-                        value={formData.company}
-                        onChange={(e) => handleInputChange('company', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <Label htmlFor="subject">Subject *</Label>
-                    <Input
-                      id="subject"
+                    <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 mb-2">
+                      Full Name
+                    </label>
+                    <input
                       type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white"
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="subject" className="block text-gray-700 dark:text-gray-300 mb-2">
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
                       required
                       value={formData.subject}
-                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white"
+                      placeholder="How can we help?"
                     />
                   </div>
-
+                  
                   <div>
-                    <Label htmlFor="message">Message *</Label>
-                    <Textarea
+                    <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 mb-2">
+                      Message
+                    </label>
+                    <textarea
                       id="message"
+                      name="message"
+                      rows={5}
                       required
-                      rows={6}
                       value={formData.message}
-                      onChange={(e) => handleInputChange('message', e.target.value)}
-                      placeholder="Please describe your inquiry, product requirements, or any questions you may have..."
-                    />
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white"
+                      placeholder="Your message..."
+                    ></textarea>
                   </div>
-
-                  <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700">
-                    Send Message
-                  </Button>
+                  
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5 mr-2" />
+                        Send Message
+                      </>
+                    )}
+                  </button>
                 </form>
-              </CardContent>
-            </Card>
+              )}
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Additional Information */}
-        <div className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Why Choose GLUTO International?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Global Network</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Extensive supplier network across multiple continents ensuring consistent supply and competitive pricing.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Quality Assurance</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Rigorous quality control processes and certifications to ensure product safety and compliance.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Expert Support</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Dedicated team of professionals providing personalized service and industry expertise.
-                  </p>
-                </div>
+      {/* FAQ Section */}
+      <section className="py-16 bg-gray-100 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Common questions about our products and services
+            </p>
+          </div>
+          
+          <div className="max-w-3xl mx-auto space-y-6">
+            {[
+              {
+                question: "How do I place an order?",
+                answer: "You can place orders directly through our product catalog. Create an account, browse products, add to cart, and complete checkout."
+              },
+              {
+                question: "What are your delivery times?",
+                answer: "Delivery times vary based on product availability and destination. Most orders ship within 3-5 business days."
+              },
+              {
+                question: "Do you offer international shipping?",
+                answer: "Yes, we ship to most countries worldwide. Shipping costs and delivery times vary by destination."
+              },
+              {
+                question: "What payment methods do you accept?",
+                answer: "We accept all major credit cards, bank transfers, and for qualified businesses, we offer net 30 payment terms."
+              }
+            ].map((faq, index) => (
+              <div key={index} className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {faq.question}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {faq.answer}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
+
+      <Footer />
+      <BackToTop/>
     </div>
   );
 }
